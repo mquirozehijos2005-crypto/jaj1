@@ -13,6 +13,7 @@ from telegram.ext import (
     MessageHandler,
     filters,
 )
+from telegram.request import HTTPXRequest
 
 from .config import Settings, load_settings
 from .handlers import callbacks, commands, files, inline
@@ -25,8 +26,25 @@ from .watchlist_worker import run_once
 log = logging.getLogger(__name__)
 
 
+def _build_request() -> HTTPXRequest:
+    # HF Spaces a veces tarda en establecer la primera conexión TLS;
+    # subimos timeouts para evitar TimedOut en initialize().
+    return HTTPXRequest(
+        connect_timeout=30.0,
+        read_timeout=30.0,
+        write_timeout=30.0,
+        pool_timeout=30.0,
+    )
+
+
 def build_app(settings: Settings) -> Application:
-    app = Application.builder().token(settings.token).build()
+    app = (
+        Application.builder()
+        .token(settings.token)
+        .request(_build_request())
+        .get_updates_request(_build_request())
+        .build()
+    )
 
     storage = Storage(settings.db_path)
     limiter = RateLimiter(settings.rate_limit_per_min)
