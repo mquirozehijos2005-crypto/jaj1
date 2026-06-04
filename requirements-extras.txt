@@ -1,0 +1,8 @@
+# Funcionalidad opcional (análisis avanzado de archivos).
+# Requiere libs de sistema. En HF Spaces puede tardar en compilar.
+# Instalar con: pip install -r requirements-extras.txt
+yara-python==4.5.1
+pefile==2024.8.26
+oletools==0.60.2
+pypdf==5.0.1
+pyzbar==0.1.9

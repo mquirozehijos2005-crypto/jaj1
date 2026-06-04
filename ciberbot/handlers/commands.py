@@ -57,10 +57,23 @@ def _save_last(ctx: ContextTypes.DEFAULT_TYPE, user_id: int, payload: dict) -> N
 async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     lang = _lang(ctx, user.id) if user else "es"
+    name = (user.first_name if user else None) or ""
+    greeting = f"¡Hola, {name}! " if name and lang == "es" else (f"Hi {name}! " if name else "")
     await update.message.reply_text(
-        t("welcome", lang),
+        greeting + t("welcome", lang),
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=main_menu(lang),
+    )
+
+
+@guarded("about")
+async def cmd_about(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    from .. import __version__
+    lang = _lang(ctx, update.effective_user.id)
+    await update.message.reply_text(
+        t("about", lang).format(version=__version__),
+        parse_mode=ParseMode.MARKDOWN,
+        disable_web_page_preview=True,
     )
 
 
@@ -241,7 +254,8 @@ async def cmd_subs(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     if not ctx.args:
         await update.message.reply_text("Uso: /subs <dominio>")
         return
-    subs = await subdomain_svc.from_crtsh(ctx.args[0])
+    await update.message.chat.send_action("typing")
+    subs = await subdomain_svc.cached_from_crtsh(ctx.bot_data["storage"], ctx.args[0])
     if not subs:
         await update.message.reply_text("Sin subdominios.")
         return
@@ -365,7 +379,7 @@ async def cmd_scan(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
         except ValueError:
             await update.message.reply_text("Puertos inválidos.")
             return
-    await update.message.reply_text(t("working", _lang(ctx, update.effective_user.id)))
+    await update.message.chat.send_action("typing")
     open_ports = await ip_svc.scan_ports(host, ports)
     body = ", ".join(str(p) for p in open_ports) or "ninguno"
     await update.message.reply_text(f"Puertos abiertos en {host}: {body}")
@@ -621,7 +635,7 @@ async def cmd_user(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     if not ctx.args:
         await update.message.reply_text("Uso: /user <username>")
         return
-    await update.message.reply_text(t("working", _lang(ctx, update.effective_user.id)))
+    await update.message.chat.send_action("typing")
     results = await username_svc.search(ctx.args[0])
     found = [(name, url) for name, ok, url in results if ok]
     not_found = [name for name, ok, _ in results if not ok]

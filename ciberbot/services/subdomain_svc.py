@@ -26,3 +26,18 @@ async def from_crtsh(domain: str, limit: int = 200) -> list[str]:
         if len(seen) >= limit:
             break
     return sorted(seen)
+
+
+async def cached_from_crtsh(storage, domain: str, limit: int = 200, ttl: int = 3600) -> list[str]:
+    """Versión cacheada en SQLite (TTL 1h por defecto)."""
+    import json
+    key = f"crtsh:{domain}:{limit}"
+    cached = storage.cache_get(key)
+    if cached:
+        try:
+            return json.loads(cached)
+        except ValueError:
+            pass
+    out = await from_crtsh(domain, limit)
+    storage.cache_set(key, json.dumps(out), ttl)
+    return out

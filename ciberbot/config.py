@@ -55,6 +55,9 @@ def load_settings() -> Settings:
         raise RuntimeError(
             "TELEGRAM_BOT_TOKEN no definido. Crea un .env desde .env.example."
         )
+    # En HF Spaces y otros PaaS hay un dir persistente /data si está habilitado.
+    # Si existe y es escribible, lo preferimos para la BD.
+    default_db = "/data/ciberbot.db" if Path("/data").is_dir() and os.access("/data", os.W_OK) else "./data/ciberbot.db"
     return Settings(
         token=token,
         allowed_user_ids=_parse_ids(os.environ.get("ALLOWED_USER_IDS")),
@@ -62,7 +65,7 @@ def load_settings() -> Settings:
         default_lang=os.environ.get("DEFAULT_LANG", "es").strip().lower() or "es",
         rate_limit_per_min=int(os.environ.get("RATE_LIMIT_PER_MIN", "30")),
         max_file_mb=int(os.environ.get("MAX_FILE_MB", "20")),
-        db_path=Path(os.environ.get("DB_PATH", "./data/ciberbot.db")).expanduser(),
+        db_path=Path(os.environ.get("DB_PATH", default_db)).expanduser(),
         yara_rules_dir=Path(
             os.environ.get("YARA_RULES_DIR", "./yara_rules")
         ).expanduser(),

@@ -8,6 +8,13 @@ STRINGS: dict[str, dict[str, str]] = {
             "Pulsa /menu para el menú interactivo o /help para comandos.\n"
             "⚠️ Uso ético: solo contra activos autorizados."
         ),
+        "about": (
+            "🛡 *CiberBot* v{version}\n"
+            "Bot de ciberseguridad sin API keys de pago.\n\n"
+            "Funciona con servicios públicos: crt.sh, HIBP (k-anonimato), "
+            "ip-api, cve.circl.lu, RDAP, BGP, Wayback, etc.\n\n"
+            "Source: github.com/mquirozehijos2005-crypto/jaj1"
+        ),
         "menu_title": "🛠 *Menú principal* — elige una categoría:",
         "cat_domain": "🌐 Dominio / URL",
         "cat_ip": "🛰 IP / Red",
@@ -37,6 +44,13 @@ STRINGS: dict[str, dict[str, str]] = {
             "👋 *CiberBot* — cybersecurity / OSINT / CTF toolkit.\n\n"
             "Tap /menu for the interactive menu or /help for commands.\n"
             "⚠️ Ethical use: only against authorized assets."
+        ),
+        "about": (
+            "🛡 *CiberBot* v{version}\n"
+            "Cybersecurity bot — no paid API keys.\n\n"
+            "Backed by public services: crt.sh, HIBP (k-anonymity), "
+            "ip-api, cve.circl.lu, RDAP, BGP, Wayback, etc.\n\n"
+            "Source: github.com/mquirozehijos2005-crypto/jaj1"
         ),
         "menu_title": "🛠 *Main menu* — pick a category:",
         "cat_domain": "🌐 Domain / URL",

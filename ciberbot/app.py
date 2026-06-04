@@ -37,12 +37,53 @@ def _build_request() -> HTTPXRequest:
     )
 
 
+# Comandos para el menú nativo de Telegram (autocomplete al escribir "/")
+TELEGRAM_COMMANDS = [
+    ("start", "Bienvenida"),
+    ("menu", "Menú interactivo"),
+    ("help", "Lista de comandos"),
+    ("about", "Acerca del bot"),
+    ("dns", "DNS de un dominio"),
+    ("whois", "WHOIS"),
+    ("ssl", "Certificado TLS"),
+    ("headers", "Security headers"),
+    ("subs", "Subdominios (crt.sh)"),
+    ("ip", "GeoIP + ASN"),
+    ("hash", "Hashes de un texto"),
+    ("hashid", "Identificar hash"),
+    ("b64e", "Base64 encode"),
+    ("b64d", "Base64 decode"),
+    ("magic", "Magic decoder"),
+    ("jwt", "Decodificar JWT"),
+    ("pwgen", "Generar password"),
+    ("pwned", "HIBP check"),
+    ("iocs", "Extraer IOCs"),
+    ("user", "OSINT username"),
+    ("cve", "CVE lookup"),
+    ("watchlist", "Mi watchlist"),
+    ("note", "Notas cifradas"),
+    ("lang", "Cambiar idioma"),
+]
+
+
+async def _on_post_init(app: Application) -> None:
+    from telegram import BotCommand
+    try:
+        await app.bot.set_my_commands(
+            [BotCommand(c, d) for c, d in TELEGRAM_COMMANDS]
+        )
+        log.info("Comandos registrados en Telegram (%d)", len(TELEGRAM_COMMANDS))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("No se pudo set_my_commands: %s", exc)
+
+
 def build_app(settings: Settings) -> Application:
     app = (
         Application.builder()
         .token(settings.token)
         .request(_build_request())
         .get_updates_request(_build_request())
+        .post_init(_on_post_init)
         .build()
     )
 
@@ -57,6 +98,7 @@ def build_app(settings: Settings) -> Application:
         ("start", commands.cmd_start),
         ("menu", commands.cmd_menu),
         ("help", commands.cmd_help),
+        ("about", commands.cmd_about),
         ("lang", commands.cmd_lang),
         ("dns", commands.cmd_dns),
         ("whois", commands.cmd_whois),
@@ -124,6 +166,19 @@ def build_app(settings: Settings) -> Application:
     app.add_handler(MessageHandler(filters.PHOTO, files.on_photo))
     app.add_handler(CallbackQueryHandler(callbacks.on_callback))
     app.add_handler(InlineQueryHandler(inline.on_inline))
+
+    # Error handler global
+    async def on_error(update, context):
+        log.exception("Excepción no capturada", exc_info=context.error)
+        try:
+            if isinstance(update, Update) and update.effective_message:
+                await update.effective_message.reply_text(
+                    "❌ Ups, fallo interno. Lo registré en logs."
+                )
+        except Exception:  # noqa: BLE001
+            pass
+
+    app.add_error_handler(on_error)
 
     # Worker periódico de watchlist (cada 30 min)
     async def watch_job(_ctx):
