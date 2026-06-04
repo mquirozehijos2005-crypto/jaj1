@@ -16,6 +16,7 @@ from telegram.ext import (
 
 from .config import Settings, load_settings
 from .handlers import callbacks, commands, files, inline
+from .healthserver import start as start_health
 from .metrics import setup_metrics
 from .rate_limit import RateLimiter
 from .storage import Storage
@@ -124,6 +125,10 @@ def main() -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
     )
     setup_metrics(settings.metrics_enabled, settings.metrics_port)
+    # HF Spaces / contenedores: exponer un puerto HTTP de salud (default 7860).
+    import os
+    health_port = int(os.environ.get("PORT", "7860"))
+    start_health(health_port)
     app = build_app(settings)
     log.info("CiberBot iniciado.")
     app.run_polling(allowed_updates=Update.ALL_TYPES)

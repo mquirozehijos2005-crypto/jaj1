@@ -23,6 +23,6 @@ RUN useradd -r -m -d /home/bot bot \
 
 USER bot
 
-EXPOSE 9090
+EXPOSE 7860 9090
 ENTRYPOINT ["/usr/bin/tini", "--"]
 CMD ["python", "-m", "ciberbot"]

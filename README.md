@@ -1,3 +1,15 @@
+---
+title: CiberBot
+emoji: 🛡️
+colorFrom: indigo
+colorTo: gray
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+short_description: Telegram cybersecurity / OSINT / CTF bot (no API keys)
+---
+
 # CiberBot — Bot de ciberseguridad para Telegram (sin API keys)
 
 Bot interactivo de ciberseguridad / OSINT / CTF. Solo necesita el token del bot. Pensado para correr 24/7 en una VPS Linux.
