@@ -1,0 +1,11 @@
+services:
+  ciberbot:
+    build: .
+    image: ciberbot:latest
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./data:/app/data
+      - ./yara_rules:/app/yara_rules:ro
+    ports:
+      - "9090:9090"  # métricas Prometheus

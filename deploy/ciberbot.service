@@ -1,0 +1,30 @@
+[Unit]
+Description=CiberBot — Telegram cybersecurity / OSINT bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ciberbot
+Group=ciberbot
+WorkingDirectory=/opt/ciberbot
+EnvironmentFile=/opt/ciberbot/.env
+ExecStart=/opt/ciberbot/.venv/bin/python -m ciberbot
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/ciberbot/data /opt/ciberbot/logs
+PrivateTmp=true
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+[Install]
+WantedBy=multi-user.target
