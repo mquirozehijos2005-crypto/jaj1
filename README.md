@@ -33,13 +33,34 @@ Bot interactivo de ciberseguridad / OSINT / CTF. Solo necesita el token del bot.
 - Python 3.11+
 - Linux: `whois`, `libmagic1`, `libzbar0` (lectura QR), `build-essential` (yara-python compila contra libyara)
 
-## Instalación rápida (VPS)
+## Instalación rápida (VPS con systemd)
 
 ```bash
 sudo bash deploy/install_vps.sh
 sudoedit /opt/ciberbot/.env   # pega TELEGRAM_BOT_TOKEN
 sudo systemctl start ciberbot
 sudo journalctl -u ciberbot -f
+```
+
+## VPS sin systemd (contenedores, HF Spaces, WSL básico)
+
+Si al hacer `systemctl` ves `System has not been booted with systemd`, usa los scripts manuales:
+
+```bash
+cd /ruta/al/repo
+bash deploy/start.sh        # crea venv, instala deps, arranca en background
+bash deploy/status.sh       # estado y últimas líneas del log
+bash deploy/stop.sh         # detener
+tail -f logs/bot.log        # logs en vivo
+```
+
+O simplemente en foreground dentro de `tmux` / `screen`:
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # edita y pega TELEGRAM_BOT_TOKEN
+python -m ciberbot
 ```
 
 ## Docker
